@@ -1,8 +1,8 @@
-from flask import render_template, url_for, flash, redirect
+from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm
 from flaskblog.models import User, Post
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 
 posts = [
     {
@@ -60,7 +60,10 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             # log in the user
             login_user(user, remember=form.remember.data)
-            return redirect(url_for("home"))
+            # if user tries to access some routes without being logged in
+            # we have query parameter called next in the URL, that we can use to redirect users when they log in
+            next_page = request.args.get("next")
+            return redirect(next_page) if next_page else redirect(url_for("home"))
         else:
             flash("Login Unsuccessful. Please check email and password!", "danger")
     return render_template("login.html", title="Login", form=form)
@@ -71,3 +74,9 @@ def logout():
     # print(current_user)
     logout_user()
     return redirect(url_for("home"))
+
+
+@app.route("/account")
+@login_required
+def account():
+    return render_template("account.html", title="Account")
