@@ -1,3 +1,5 @@
+import os
+import secrets
 from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm
@@ -76,11 +78,31 @@ def logout():
     return redirect(url_for("home"))
 
 
+def save_picture(form_picture):
+    # random_hex will be the base of our filename
+    # we don't want to keep the name of the picture bc it might collide with other images in our folder,
+    # so we randomize the name of image
+    random_hex = secrets.token_hex(8)
+    # we need to save pic with the same extension that is uploaded
+    _, f_ext = os.path.splitext(form_picture.filename)
+    # picture filename
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, "static/profile_pics", picture_fn)
+    # save in our directory
+    form_picture.save(picture_path)
+    # print(picture_fn)
+    return picture_fn
+
+
 @app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            # save it just like we did it with the username and email
+            current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
