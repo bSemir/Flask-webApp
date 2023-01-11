@@ -3,29 +3,30 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from flaskblog.models import User, Post
 from flask_login import login_user, logout_user, current_user, login_required
 
-posts = [
-    {
-        "author": "Semir Blekic",
-        "title": "Blog Post 1",
-        "content": "First post content",
-        "date_posted": "December 30, 2022",
-    },
-    {
-        "author": "John Doe",
-        "title": "Blog Post 2",
-        "content": "Second post content",
-        "date_posted": "December 29, 2022",
-    },
-]
+# posts = [
+#     {
+#         "author": "Semir Blekic",
+#         "title": "Blog Post 1",
+#         "content": "First post content",
+#         "date_posted": "December 30, 2022",
+#     },
+#     {
+#         "author": "John Doe",
+#         "title": "Blog Post 2",
+#         "content": "Second post content",
+#         "date_posted": "December 29, 2022",
+#     },
+# ]
 
 
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Post.query.all()
     return render_template("home.html", posts=posts)
 
 
@@ -124,7 +125,16 @@ def account():
     )
 
 
-@app.route("/post/new")
+@app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
-    return render_template("create_post.html", title="New Post")
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(
+            title=form.title.data, content=form.content.data, author=current_user
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash("Your post has been created!", "success")
+        return redirect(url_for("home"))
+    return render_template("create_post.html", title="New Post", form=form)
