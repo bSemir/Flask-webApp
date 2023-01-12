@@ -11,6 +11,11 @@
       <small class="text-muted"
         >{{ post.date_posted.strftime('%Y-%m-%d') }}</small
       >
+      {% if post.author == current_user %}
+        <div>
+            <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+        </div>
+      {% endif %}
     </div>
     <h2 class="article-title">{{ post.title }}</a></h2>
     <p class="article-content">{{ post.content }}</p>
