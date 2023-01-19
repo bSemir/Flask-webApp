@@ -27,7 +27,9 @@ from flask_login import login_user, logout_user, current_user, login_required
 @app.route("/home")
 def home():
     page = request.args.get("page", 1, type=int)  # http://127.0.0.1:5000/home?page=1
-    posts = Post.query.paginate(page=page, per_page=2)  # 5 posts per page
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(
+        page=page, per_page=2
+    )  # show newer posts first, paginate
     return render_template("home.html", posts=posts)
 
 
