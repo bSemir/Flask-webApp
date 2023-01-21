@@ -186,7 +186,7 @@ def delete_post(post_id):
     return redirect(url_for("home"))
 
 
-@app.route("/user/<str:username>")
+@app.route("/user/<string:username>")
 def user_posts(username):
     page = request.args.get("page", 1, type=int)
     user = User.query.filter_by(
@@ -197,5 +197,4 @@ def user_posts(username):
         .order_by(Post.date_posted.desc())
         .paginate(page=page, per_page=2)
     )
-    # TODO: create and render different template
-    return render_template("home.html", posts=posts)
+    return render_template("user_posts.html", posts=posts, user=user)
