@@ -198,3 +198,6 @@ def user_posts(username):
         .paginate(page=page, per_page=2)
     )
     return render_template("user_posts.html", posts=posts, user=user)
+
+
+# TODO: add password reset
