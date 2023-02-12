@@ -34,6 +34,8 @@ class User(db.Model, UserMixin):
             return None
         return User.query.get(user_id)
 
+    # TODO: create two more templates?
+
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
